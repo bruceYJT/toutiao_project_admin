@@ -9,7 +9,8 @@ import axios from 'axios'
 
 // 创建一个axios 实例
 const request = axios.create({
-  baseURL: 'http://ttapi.research.itcast.cn/'
+//   baseURL: 'http://ttapi.research.itcast.cn/'
+  baseURL: 'http://127.0.0.1:5000/'
 })
 
 // 请求拦截器
