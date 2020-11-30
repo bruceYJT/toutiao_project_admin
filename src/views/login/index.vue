@@ -18,7 +18,7 @@
             >
           </el-form-item>
           <el-form-item>
-            <el-button class="login-btn" type="primary" @click="onSubmit"
+            <el-button class="login-btn" type="primary" :loading="loginLoading" @click="onLogin"
               >登录</el-button
             >
           </el-form-item>
@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import request from '@/utils/request'
 export default {
   name: 'LoginIndex',
   components: {},
@@ -39,7 +40,8 @@ export default {
         mobile: '', // 手机号
         code: '' // 验证码
       },
-      checked: false // 协议是否同意
+      checked: false, // 协议是否同意
+      loginLoading: false
     }
   },
   computed: {},
@@ -47,8 +49,26 @@ export default {
   created: {},
   mounted: {},
   methods: {
-    onSubmit () {
-      console.log('submit...')
+    onLogin () {
+      const user = this.user
+      this.loginLoading = true
+
+      request({
+        method: 'POST',
+        url: '/mp/v1_0/authorizations',
+        data: user
+      }).then(res => {
+        console.log(res)
+        // 登录成功
+        this.$message({
+          message: '登录成功',
+          type: 'success'
+        })
+      }).catch(err => {
+        console.log('登录失败', err)
+        this.$message.error('登录失败，手机号或验证码错误')
+        this.loginLoading = false
+      })
     }
   }
 }
