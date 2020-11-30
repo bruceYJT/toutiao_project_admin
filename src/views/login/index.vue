@@ -37,19 +37,19 @@ export default {
   data () {
     return {
       user: {
-        mobile: '', // 手机号
-        code: '', // 验证码
+        mobile: '13911111111', // 手机号
+        code: '246810', // 验证码
         agree: false // 协议是否同意
       },
       loginLoading: false,
       formRules: {
         mobile: [
-          { required: true, message: '请输入手机号', trigger: 'change' },
-          { pattern: /^1[3|5|7|8|9]\d{9}$/, message: '请输入正确的号码格式', trigger: 'change' }
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { pattern: /^1[3|5|7|8|9]\d{9}$/, message: '请输入正确的号码格式', trigger: 'blur' }
         ],
         code: [
-          { required: true, message: '验证码不能为空', trigger: 'change' },
-          { pattern: /^\d{6}$/, message: '请输入正确的验证码格式', trigger: 'change' }
+          { required: true, message: '验证码不能为空', trigger: 'blur' },
+          { pattern: /^\d{6}$/, message: '请输入正确的验证码格式', trigger: 'blur' }
         ],
         agree: [
           {
@@ -88,7 +88,9 @@ export default {
           message: '登录成功',
           type: 'success'
         })
-        this.loginLoading = false
+        this.$router.push({
+          name: 'home'
+        })
       }).catch(err => {
         console.log('登录失败', err)
         this.$message.error('登录失败，手机号或验证码错误')
