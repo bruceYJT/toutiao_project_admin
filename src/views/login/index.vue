@@ -5,15 +5,15 @@
           <div class="logo">
           </div>
         </div>
-        <el-form class="login-form" ref="form" :model= 'user'>
-          <el-form-item>
+        <el-form class="login-form" ref="loginForm" :model= 'user' :rules= 'formRules'>
+          <el-form-item prop= 'mobile'>
             <el-input v-model="user.mobile" placeholder="请输入手机号"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item prop= 'code'>
             <el-input v-model="user.code" placeholder="请输入验证码"></el-input>
           </el-form-item>
-          <el-form-item>
-            <el-checkbox v-model="checked"
+          <el-form-item prop= 'agree'>
+            <el-checkbox v-model="user.agree"
               >我已阅读并同意用户协议和隐私条款</el-checkbox
             >
           </el-form-item>
@@ -38,10 +38,33 @@ export default {
     return {
       user: {
         mobile: '', // 手机号
-        code: '' // 验证码
+        code: '', // 验证码
+        agree: false // 协议是否同意
       },
-      checked: false, // 协议是否同意
-      loginLoading: false
+      loginLoading: false,
+      formRules: {
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'change' },
+          { pattern: /^1[3|5|7|8|9]\d{9}$/, message: '请输入正确的号码格式', trigger: 'change' }
+        ],
+        code: [
+          { required: true, message: '验证码不能为空', trigger: 'change' },
+          { pattern: /^\d{6}$/, message: '请输入正确的验证码格式', trigger: 'change' }
+        ],
+        agree: [
+          {
+            validator: (rule, value, callback) => {
+              if (value) {
+                callback()
+              } else {
+                callback(new Error())
+              }
+            },
+            message: '请同意用户协议',
+            trigger: 'change'
+          }
+        ]
+      }
     }
   },
   computed: {},
@@ -50,13 +73,18 @@ export default {
   mounted: {},
   methods: {
     onLogin () {
-      const user = this.user
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.login()
+        }
+      })
+    },
+    login () {
       this.loginLoading = true
-
       request({
         method: 'POST',
         url: '/mp/v1_0/authorizations',
-        data: user
+        data: this.user
       }).then(res => {
         console.log(res)
         // 登录成功
