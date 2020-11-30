@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import request from '@/utils/request'
+import { login } from '@/api/user'
 export default {
   name: 'LoginIndex',
   components: {},
@@ -75,23 +75,20 @@ export default {
     onLogin () {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.login()
+          this.login_ceil()
         }
       })
     },
-    login () {
+    login_ceil () {
       this.loginLoading = true
-      request({
-        method: 'POST',
-        url: '/mp/v1_0/authorizations',
-        data: this.user
-      }).then(res => {
+      login(this.user).then(res => {
         console.log(res)
         // 登录成功
         this.$message({
           message: '登录成功',
           type: 'success'
         })
+        this.loginLoading = false
       }).catch(err => {
         console.log('登录失败', err)
         this.$message.error('登录失败，手机号或验证码错误')
