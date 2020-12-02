@@ -38,7 +38,7 @@ export default {
     return {
       user: {
         mobile: '13911111111', // 手机号
-        code: '246810', // 验证码
+        code: '', // 验证码
         agree: false // 协议是否同意
       },
       loginLoading: false,

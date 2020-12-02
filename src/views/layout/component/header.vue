@@ -1,7 +1,12 @@
 <template>
   <div class="header-container">
     <div>
-      <i class="el-icon-s-fold"></i>
+      <i
+      :class="{
+        'el-icon-s-fold': isCollapse,
+        'el-icon-s-unfold': !isCollapse
+      }"
+      @click="changeCollspase()"></i>
       <span>xxxx有限公司</span>
     </div>
     <el-dropdown>
@@ -23,7 +28,7 @@ import { getUserProfile } from '@/api/user.js'
 export default {
   name: 'AppHeader',
   components: {},
-  props: {},
+  props: ['collapse'],
   data () {
     return {
       user: {}
@@ -39,7 +44,11 @@ export default {
     })
   },
   mounted () {},
-  methods: {}
+  methods: {
+    changeCollspase () {
+      this.$emit('changeCollapse', !this.collapse)
+    }
+  }
 }
 </script>
 

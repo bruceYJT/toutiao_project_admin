@@ -10,6 +10,8 @@
         text-color="#fff"
         active-text-color="#FFDDAA"
         router
+        :collapse="isCollapse"
+        :collapse-transition="false"
     >
         <el-menu-item index="/">
             <i class="el-icon-s-home"></i>
@@ -47,7 +49,7 @@
 export default {
   name: 'AppAside',
   components: {},
-  props: {},
+  props: ['is-collapse'],
   data () {
     return {}
   },
@@ -62,6 +64,9 @@ export default {
 <style scoped lang="less">
 body {
     .nav-menu {
+        .el-menu-item {
+            width: 150px;
+        }
         .iconfont {
             margin-right: 10px;
             padding-left: 5px;

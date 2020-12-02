@@ -2,12 +2,12 @@
   <el-container class="layout-container">
     <el-aside
       class="aside"
-      width="200px"
+      width="auto"
     >
-        <AppAside/>
+        <AppAside :is-collapse='isCollapse'/>
     </el-aside>
     <el-container>
-      <el-header class="header"><AppHeader/></el-header>
+      <el-header class="header"><AppHeader v-bind:collapse='isCollapse' v-on:changeCollapse='changeCollapse($event)'/></el-header>
       <el-main class="main">
         <!-- 子路由出口 -->
         <router-view />
@@ -25,15 +25,21 @@ export default {
     AppAside,
     AppHeader
   },
-  props: {},
+  props: [],
   data () {
-    return {}
+    return {
+      isCollapse: false
+    }
   },
   computed: {},
   watch: {},
   created () {},
   mounted () {},
-  methods: {}
+  methods: {
+    changeCollapse (newdata) {
+      this.isCollapse = newdata
+    }
+  }
 }
 </script>
 
