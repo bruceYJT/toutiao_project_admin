@@ -88,6 +88,10 @@ export default {
           message: '登录成功',
           type: 'success'
         })
+
+        // 本地存储返回信息（jwt）
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
+
         this.$router.push({
           name: 'home'
         })
