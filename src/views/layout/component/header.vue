@@ -25,7 +25,9 @@ export default {
   components: {},
   props: {},
   data () {
-    return {}
+    return {
+      user: {}
+    }
   },
   computed: {},
   watch: {},
