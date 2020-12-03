@@ -4,6 +4,8 @@ import Login from '@/views/login'
 import Home from '@/views/home'
 import Layout from '@/views/layout'
 
+import NProgress from 'nprogress'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -33,6 +35,7 @@ const router = new VueRouter({
 export default router
 
 router.beforeEach((to, from, next) => {
+  NProgress.start()
   const user = JSON.parse(window.localStorage.getItem('user'))
 
   if (to.path !== '/login') {
@@ -44,4 +47,8 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
+})
+
+router.afterEach((to, from) => {
+  NProgress.done()
 })
