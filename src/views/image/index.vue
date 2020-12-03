@@ -15,6 +15,7 @@
           <el-radio-button :label="false">全部</el-radio-button>
           <el-radio-button :label="true">收藏</el-radio-button>
         </el-radio-group>
+        <el-button class='alone' round size='mini' type='warning' @click='dialogUploadVisible = true'>上传素材</el-button>
       </div>
       <!-- 素材列表 -->
       <el-row :gutter="10">
@@ -24,15 +25,43 @@
             :src="img.url"
             fit="cover"
           ></el-image>
+          <div class="img-item">
+
+          </div>
         </el-col>
       </el-row>
-      <!-- /素材列表 -->
+      <el-pagination
+        layout="prev, pager, next"
+        background
+        :total="totalCount"
+        :page-size='pageSize'
+        :current-page.sync='page'
+        @current-change='onCurrentChange'
+        :disabled='loading'>
+      </el-pagination>
     </el-card>
+    <el-dialog title="上传素材" :visible.sync='dialogUploadVisible' :append-to-body="true">
+        <el-upload
+        class="upload-demo"
+        drag
+        action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
+        name='image'
+        :headers='uploadHeaders'
+        :show-file-list='false'
+        :on-success='onUploadSuccess'
+        multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { getImages } from '@/api/article.js'
+const user = JSON.parse(window.localStorage.getItem('user'))
 export default {
   name: 'ImageIndex',
   components: {},
@@ -41,7 +70,15 @@ export default {
     return {
       radio1: '全部',
       images: [],
-      collect: false
+      collect: false,
+      dialogUploadVisible: false,
+      uploadHeaders: {
+        Authorization: `Bearer ${user.token}`
+      },
+      totalCount: null,
+      pageSize: 20,
+      page: 1,
+      loading: false
     }
   },
   computed: {},
@@ -51,15 +88,32 @@ export default {
   },
   mounted () {},
   methods: {
-    onloadImage () {
+    onloadImage (page = 1) {
       getImages({
-        collect: this.collect
+        page,
+        collect: this.collect,
+        per_page: this.pageSize
       }).then(res => {
-        this.images = res.data.data.results
+        const { results, total_count: totalCount } = res.data.data
+        this.images = results
+        this.totalCount = totalCount
       })
+    },
+    onUploadSuccess () {
+      this.$message({
+        type: 'info',
+        message: '上传图片成功'
+      })
+    },
+    onCurrentChange () {
+      this.onloadImage(this.page)
     }
   }
 }
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.alone {
+    margin-left: 20px;
+}
+</style>
