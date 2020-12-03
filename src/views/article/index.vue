@@ -40,7 +40,7 @@
     </el-card>
     <el-card class="box-card">
         <div slot="header" class="clearfix">
-            根据筛选条件共查询到 46147 条结果：
+            根据筛选条件共查询到 {{ totalCount }} 条结果：
         </div>
         <el-table
         :data="articles"
@@ -104,7 +104,9 @@
         <el-pagination
         layout="prev, pager, next"
         background
-        :total="1000">
+        :total="totalCount"
+        :page-size='pageSize'
+        @current-change='onCurrentChange'>
         </el-pagination>
     </el-card>
   </div>
@@ -135,7 +137,9 @@ export default {
         { status: 2, text: '审核通过', type: 'success' }, // 2
         { status: 3, text: '审核失败', type: 'warning' }, // 3
         { status: 4, text: '已删除', type: 'danger' } // 4
-      ]
+      ],
+      totalCount: 0,
+      pageSize: 10
     }
   },
   computed: {},
@@ -145,10 +149,19 @@ export default {
   },
   mounted () {},
   methods: {
-    loadArticles () {
-      getArticles().then(res => {
-        this.articles = res.data.data.results
+    loadArticles (page = 1) {
+      getArticles({
+        page,
+        per_page: this.pageSize
+      }).then(res => {
+        const { results, total_count: totalCount } = res.data.data
+        this.articles = results
+        // eslint-disable-next-line camelcase
+        this.totalCount = totalCount
       })
+    },
+    onCurrentChange (page) {
+      this.loadArticles(page)
     }
   }
 }
