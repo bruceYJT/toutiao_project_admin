@@ -43,25 +43,62 @@
             根据筛选条件共查询到 46147 条结果：
         </div>
         <el-table
-        :data="tableData"
+        :data="articles"
         stripe
         style="width: 100%"
         class="list-table"
         size="mini"
         >
             <el-table-column
-            prop="date"
-            label="日期"
-            width="180">
+                prop="date"
+                label="封面">
+                <template slot-scope="scope">
+                    <el-image
+                    style="width: 100px; height: 100px"
+                    :src="scope.row.cover.images[0]"
+                    fit='cover'
+                    lazy
+                    >
+                        <div slot="placeholder" class="image-slot">
+                            加载中<span class='dot'>...</span>
+                        </div>
+                        <div slot="error" class="image-slot">
+                            <img src="./loadError.jpg" alt="" style="width: 100px; height: 100px">
+                        </div>
+                    </el-image>
+                </template>
             </el-table-column>
             <el-table-column
-            prop="name"
-            label="姓名"
-            width="180">
+                prop="title"
+                label="标题">
             </el-table-column>
             <el-table-column
-            prop="address"
-            label="地址">
+                label="状态">
+                <!-- 如果需要在自定义列模板中获取当前遍历项数据，那么就在 template 上声明 slot-scope="scope" -->
+                <template slot-scope="scope">
+                    <el-tag :type="articleStatus[scope.row.status].type">{{ articleStatus[scope.row.status].text }}</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column
+                prop="pubdate"
+                label="发布时间">
+            </el-table-column>
+            <el-table-column
+                label="操作">
+                <template>
+                    <el-button
+                        size="mini"
+                        circle
+                        icon="el-icon-edit"
+                        type="primary"
+                    ></el-button>
+                    <el-button
+                        size="mini"
+                        type="danger"
+                        icon="el-icon-delete"
+                        circle
+                    ></el-button>
+                </template>
             </el-table-column>
         </el-table>
         <el-pagination
@@ -74,6 +111,7 @@
 </template>
 
 <script>
+import { getArticles } from '@/api/article'
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -90,32 +128,27 @@ export default {
         resource: '',
         desc: ''
       },
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      articles: [],
+      articleStatus: [
+        { status: 0, text: '草稿', type: 'info' }, // 0
+        { status: 1, text: '待审核', type: '' }, // 1
+        { status: 2, text: '审核通过', type: 'success' }, // 2
+        { status: 3, text: '审核失败', type: 'warning' }, // 3
+        { status: 4, text: '已删除', type: 'danger' } // 4
+      ]
     }
   },
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    this.loadArticles()
+  },
   mounted () {},
   methods: {
-    onSubmit () {
-      console.log('submit!')
+    loadArticles () {
+      getArticles().then(res => {
+        this.articles = res.data.data.results
+      })
     }
   }
 }

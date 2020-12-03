@@ -61,6 +61,6 @@ export default {
 }
 
 .main {
-  background-color: #FFFFFF;
+  background-color:#ffffea;;
 }
 </style>
