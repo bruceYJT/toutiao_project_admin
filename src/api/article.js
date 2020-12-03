@@ -39,7 +39,7 @@ export const getImages = params => {
   })
 }
 
-// 收藏素材列表
+// 收藏素材
 export const collectImage = (imageId, collect) => {
   return request({
     method: 'PUT',
@@ -47,5 +47,13 @@ export const collectImage = (imageId, collect) => {
     data: {
       collect
     }
+  })
+}
+
+// 删除素材
+export const deleteImage = imageId => {
+  return request({
+    method: 'DELETE',
+    url: `/mp/v1_0/user/images/${imageId}`
   })
 }

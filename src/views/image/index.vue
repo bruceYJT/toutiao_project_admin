@@ -32,7 +32,7 @@
               @click="oncollectit(img)"
               :diabled = 'loading'
               ></i>
-              <i class="el-icon-delete img-item-icon deflault-icon" :diabled = 'loading'></i>
+              <i class="el-icon-delete img-item-icon deflault-icon" :diabled = 'loading' @click="onDelete(img)"></i>
           </div>
         </el-col>
       </el-row>
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { getImages, collectImage } from '@/api/article.js'
+import { getImages, collectImage, deleteImage } from '@/api/article.js'
 const user = JSON.parse(window.localStorage.getItem('user'))
 export default {
   name: 'ImageIndex',
@@ -113,6 +113,7 @@ export default {
         type: 'info',
         message: '上传图片成功'
       })
+      this.onloadImage(this.page)
     },
     onCurrentChange () {
       this.onloadImage(this.page)
@@ -126,8 +127,32 @@ export default {
           type: 'warning',
           message: '收藏失败'
         })
+        this.loading = false
       })
-      this.loading = false
+    },
+    onDelete (img) {
+      this.loading = true
+      this.$confirm('确定删除吗？', '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteImage(img.id).then(res => {
+          this.onloadImage(this.page)
+          this.loading = false
+        }).catch(() => {
+          this.$message({
+            type: 'warning',
+            message: '删除失败'
+          })
+          this.loading = false
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
   }
 }
