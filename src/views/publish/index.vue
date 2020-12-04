@@ -9,7 +9,7 @@
         </el-breadcrumb>
         <!-- /面包屑路径导航 -->
       </div>
-      <el-form ref='article' :model="article" label-width="40px">
+      <el-form ref='form' :model="article" label-width="40px">
         <el-form-item label="标题">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
@@ -25,13 +25,13 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="article.channelId" placeholder="请选择频道">
+          <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option v-for='value in channels' :label="value.name" :value="value.id" :key="value.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">发表</el-button>
-          <el-button>存入草稿</el-button>
+          <el-button type="primary" @click="onPublish(true)">发表</el-button>
+          <el-button @click="onPublish(false)" >存入草稿</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { getArticleChannels } from '@/api/article'
+import { getArticleChannels, addArticle } from '@/api/article'
 export default {
   name: 'PublishIndex',
   components: {},
@@ -53,7 +53,7 @@ export default {
           type: 0, // 封面类型 -1:自动，0-无图，1-1张，3-3张
           images: [] // 封面图片的地址
         },
-        channelId: null
+        channel_id: null
       },
       channels: []
     }
@@ -65,14 +65,43 @@ export default {
   },
   mounted () {},
   methods: {
-    onSubmit () {
-      console.log('submit!')
-    },
     onGetChannels () {
       getArticleChannels().then(res => {
         this.channels = res.data.data.channels
       })
+    },
+    onPublish (draft) {
+      if (draft) {
+        this.$confirm('确定发布文章吗？', '文章发布提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.onaddarticle(true)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消发布'
+          })
+        })
+      } else {
+        this.onaddarticle(false)
+      }
+    },
+    onaddarticle (draft) {
+      addArticle(this.article, draft).then(() => {
+        this.$message({
+          type: 'success',
+          message: '发布成功'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '发布失败'
+        })
+      })
     }
+
   }
 }
 </script>
