@@ -23,6 +23,13 @@
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <template v-if="article.cover.type > 0">
+            <el-row :gutter='20'>
+              <el-col :span='4' v-for="item in article.cover.type" :key="item">
+                <uploadImg></uploadImg>
+              </el-col>
+            </el-row>
+          </template>
         </el-form-item>
         <el-form-item label="频道" prop='channel_id'>
           <el-select v-model="article.channel_id" placeholder="请选择频道">
@@ -63,10 +70,12 @@ import {
   TextColor
 } from 'element-tiptap'
 import 'element-tiptap/lib/index.css'
+import uploadImg from './components/uploadImg'
 export default {
   name: 'PublishIndex',
   components: {
-    'el-tiptap': ElementTiptap
+    'el-tiptap': ElementTiptap,
+    uploadImg
   },
   props: {},
   data () {
