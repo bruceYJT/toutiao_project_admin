@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { getArticleChannels, addArticle } from '@/api/article'
+import { getArticleChannels, addArticle, getArticle } from '@/api/article'
 export default {
   name: 'PublishIndex',
   components: {},
@@ -62,6 +62,13 @@ export default {
   watch: {},
   created () {
     this.onGetChannels()
+    if (this.$route.query.id) {
+      this.loadArticle()
+      // this.$message({
+      //   type: 'info',
+      //   message: '开始请求文章信息'
+      // })
+    }
   },
   mounted () {},
   methods: {
@@ -98,6 +105,16 @@ export default {
         this.$message({
           type: 'error',
           message: '发布失败'
+        })
+      })
+    },
+    loadArticle () {
+      getArticle(this.$route.query.id).then(res => {
+        this.article = res.data.data.article
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '文章读取失败'
         })
       })
     }
