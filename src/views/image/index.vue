@@ -50,7 +50,7 @@
         <el-upload
         class="upload-demo"
         drag
-        action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
+        action="http://127.0.0.1:5000/mp/v1_0/user/images"
         name='image'
         :headers='uploadHeaders'
         :show-file-list='false'

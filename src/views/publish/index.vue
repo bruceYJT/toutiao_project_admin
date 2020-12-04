@@ -5,11 +5,11 @@
         <!-- 面包屑路径导航 -->
         <el-breadcrumb separator-class="el-icon-arrow-right">
           <el-breadcrumb-item to="/">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>发布文章</el-breadcrumb-item>
+          <el-breadcrumb-item>{{ articleId?'修改文章':'发布文章' }}</el-breadcrumb-item>
         </el-breadcrumb>
         <!-- /面包屑路径导航 -->
       </div>
-      <el-form ref='form' :model="article" label-width="40px">
+      <el-form ref='article' :model="article" label-width="40px">
         <el-form-item label="标题">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
@@ -31,7 +31,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onPublish(true)">发表</el-button>
-          <el-button @click="onPublish(false)" >存入草稿</el-button>
+          <el-button @click="onPublish(false)" v-show="!$route.query.id">存入草稿</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { getArticleChannels, addArticle, getArticle } from '@/api/article'
+import { getArticleChannels, addArticle, getArticle, updateArticle } from '@/api/article'
 export default {
   name: 'PublishIndex',
   components: {},
@@ -55,19 +55,20 @@ export default {
         },
         channel_id: null
       },
-      channels: []
+      channels: [],
+      articleId: this.$route.query.id
     }
   },
   computed: {},
   watch: {},
   created () {
     this.onGetChannels()
-    if (this.$route.query.id) {
+    if (this.articleId) {
       this.loadArticle()
-      // this.$message({
-      //   type: 'info',
-      //   message: '开始请求文章信息'
-      // })
+      this.$message({
+        type: 'info',
+        message: '开始请求文章信息'
+      })
     }
   },
   mounted () {},
@@ -96,21 +97,37 @@ export default {
       }
     },
     onaddarticle (draft) {
-      addArticle(this.article, draft).then(() => {
-        this.$message({
-          type: 'success',
-          message: '发布成功'
+      if (this.articleId) {
+        updateArticle(this.articleId, this.article, draft).then(() => {
+          this.$message({
+            type: 'success',
+            message: '修改成功'
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '修改失败'
+          })
         })
-      }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '发布失败'
+      } else {
+        addArticle(this.article, draft).then(() => {
+          this.$message({
+            type: 'success',
+            message: '发布成功'
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '发布失败'
+          })
         })
-      })
+      }
     },
     loadArticle () {
-      getArticle(this.$route.query.id).then(res => {
-        this.article = res.data.data.article
+      getArticle(this.articleId).then(res => {
+        if (res.data.data) {
+          this.article = res.data.data
+        }
       }).catch(() => {
         this.$message({
           type: 'error',
