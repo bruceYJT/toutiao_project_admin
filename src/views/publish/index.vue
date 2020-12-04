@@ -9,11 +9,11 @@
         </el-breadcrumb>
         <!-- /面包屑路径导航 -->
       </div>
-      <el-form ref='article' :model="article" label-width="40px">
-        <el-form-item label="标题">
+      <el-form ref='publish-form' :model="article" label-width="70px" :rules='formRules'>
+        <el-form-item label="标题" prop='title'>
           <el-input v-model="article.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
+        <el-form-item label="内容" prop='content'>
           <el-tiptap v-model="article.content" :extensions="extensions" height='350' lang="zh" placeholder="请输入文章内容"></el-tiptap>
         </el-form-item>
         <el-form-item label="封面">
@@ -24,13 +24,13 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item label="频道" prop='channel_id'>
           <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option v-for='value in channels' :label="value.name" :value="value.id" :key="value.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onPublish(true)">发表</el-button>
+          <el-button type="primary" @click="toPublish(true)">发表</el-button>
           <el-button @click="onPublish(false)" v-show="!$route.query.id">存入草稿</el-button>
         </el-form-item>
       </el-form>
@@ -112,7 +112,30 @@ export default {
         new Preview(),
         new CodeBlock(),
         new TextColor()
-      ]
+      ],
+      formRules: {
+        title: [
+          { required: true, message: '请输入文章标题', trigger: 'blur' },
+          { min: 5, max: 30, message: '长度在 5 到 30 个字符', trigger: 'blur' }
+        ],
+        content: [
+          {
+            validator (rule, value, callback) {
+              if (value === '<p></p>') {
+                // 验证失败
+                callback(new Error('请输入文章内容'))
+              } else {
+                // 验证通过
+                callback()
+              }
+            }
+          },
+          { required: true, message: '请输入文章内容', trigger: 'blur' }
+        ],
+        channel_id: [
+          { required: true, message: '请选择文章频道', trigger: 'blur' }
+        ]
+      }
     }
   },
   computed: {},
@@ -121,10 +144,6 @@ export default {
     this.onGetChannels()
     if (this.articleId) {
       this.loadArticle()
-      this.$message({
-        type: 'info',
-        message: '开始请求文章信息'
-      })
     }
   },
   mounted () {},
@@ -132,6 +151,18 @@ export default {
     onGetChannels () {
       getArticleChannels().then(res => {
         this.channels = res.data.data.channels
+      })
+    },
+    toPublish (draft) {
+      this.$refs['publish-form'].validate(valid => {
+        if (valid) {
+          this.onPublish(draft)
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '文章格式有误，无法发送'
+          })
+        }
       })
     },
     onPublish (draft) {
