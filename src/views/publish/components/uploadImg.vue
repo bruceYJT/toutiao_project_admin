@@ -6,7 +6,7 @@
         ref="cover-image"
         :src="value"
       >
-      <i class="el-icon-plus avatar-uploader-icon" v-if="!$refs['preview-image']"></i>
+      <i class="el-icon-plus avatar-uploader-icon" v-if="add_icon"></i>
     </div>
 
     <el-dialog
@@ -16,6 +16,7 @@
     >
       <el-tabs v-model="activeName" type="card">
         <el-tab-pane label="素材库" name="first">
+          <imgList v-on:showImage='showImage($event)' v-bind:collect_and_delete='false' v-bind:check_select='true'></imgList>
         </el-tab-pane>
         <el-tab-pane label="上传图片" name="second">
           <input
@@ -42,17 +43,20 @@
 
 <script>
 import { uploadImage } from '@/api/article'
+import imgList from '@/views/image/components/img_list'
 // import ImageList from '@/views/image/components/image-list'
 export default {
   name: 'uploadImg',
   components: {
-    // ImageList
+    imgList
   },
   props: ['value'],
   data () {
     return {
       dialogVisible: false,
-      activeName: 'second'
+      activeName: 'second',
+      img_url: null,
+      add_icon: true
     }
   },
   computed: {},
@@ -60,6 +64,9 @@ export default {
   created () {},
   mounted () {},
   methods: {
+    showImage (url) {
+      this.img_url = url
+    },
     showCoverSelect () {
       // 展示选择封面的弹窗
       this.dialogVisible = true
@@ -81,6 +88,8 @@ export default {
           this.$message('请选择文件')
           return
         }
+        // 取消掉加号图标
+        this.add_icon = false
         // 执行上传文件的操作
         const fd = new FormData()
         fd.append('image', file)
@@ -93,6 +102,10 @@ export default {
           this.$emit('input', res.data.data.url)
         })
       } else if (this.activeName === 'first') {
+        if (this.img_url == null) {
+          this.$message('请选择封面图片')
+          return null
+        }
         // 还有一种组件通信方式：父组件可以直接访问子组件中的数据
         // const imageList = this.$refs['image-list']
         // const selected = imageList.selected
@@ -100,10 +113,12 @@ export default {
         //   this.$message('请选择封面图片')
         //   return
         // }
-        // // 关闭对话框
-        // this.dialogVisible = false
-        // // 修改父组件绑定数据
-        // this.$emit('input', imageList.images[selected].url)
+        // 取消掉加号图标
+        this.add_icon = false
+        // 关闭对话框
+        this.dialogVisible = false
+        // 修改父组件绑定数据
+        this.$emit('input', this.img_url)
       }
     }
   }

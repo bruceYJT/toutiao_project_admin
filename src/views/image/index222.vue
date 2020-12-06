@@ -1,12 +1,21 @@
 <template>
   <div class="image-container">
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <!-- 面包屑路径导航 -->
+        <el-breadcrumb separator-class="el-icon-arrow-right">
+          <el-breadcrumb-item to="/">首页</el-breadcrumb-item>
+          <el-breadcrumb-item>素材管理</el-breadcrumb-item>
+        </el-breadcrumb>
+        <!-- /面包屑路径导航 -->
+        <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
+      </div>
       <div style="padding-bottom: 20px;">
         <el-radio-group v-model="collect" size="mini" @change="onloadImage()" :disabled="loading">
           <el-radio-button :label="false">全部</el-radio-button>
           <el-radio-button :label="true">收藏</el-radio-button>
         </el-radio-group>
-        <slot name='header'></slot>
-        <!-- <el-button class='alone' round size='mini' type='warning' @click='dialogUploadVisible = true' :disabled="loading">上传素材</el-button> -->
+        <el-button class='alone' round size='mini' type='warning' @click='dialogUploadVisible = true' :disabled="loading">上传素材</el-button>
       </div>
       <!-- 素材列表 -->
       <el-row :gutter="10">
@@ -17,7 +26,7 @@
             fit="cover"
           >
           </el-image>
-          <div :class="{'img-item':(active_code != index), 'img_active_bg':(active_code == index)}" @mouseenter="active_code = index" @mouseleave="active_code = null" v-if="collect_and_delete">
+          <div :class="{'img-item':(active_code != index), 'img_active_bg':(active_code == index)}" @mouseenter="active_code = index" @mouseleave="active_code = null">
               <i
               :class="{'el-icon-star-off':!img.is_collected, 'img-item-icon':true, 'deflault-icon':!img.is_collected, 'active-icon':img.is_collected, 'el-icon-star-on':img.is_collected}"
               @click="oncollectit(img)"
@@ -25,7 +34,6 @@
               ></i>
               <i class="el-icon-delete img-item-icon deflault-icon" :diabled = 'loading' @click="onDelete(img)"></i>
           </div>
-          <i :class="{'el-icon-check':true, 'check-icon':true, 'check-active':image_active_code == index}" @click="onClick(index,img.url)" v-if="check_select"></i>
         </el-col>
       </el-row>
       <el-pagination
@@ -37,32 +45,47 @@
         @current-change='onCurrentChange'
         :disabled='loading'>
       </el-pagination>
+    </el-card>
+    <el-dialog title="上传素材" :visible.sync='dialogUploadVisible' :append-to-body="true">
+        <el-upload
+        class="upload-demo"
+        drag
+        action="http://127.0.0.1:5000/mp/v1_0/user/images"
+        name='image'
+        :headers='uploadHeaders'
+        :show-file-list='false'
+        :on-success='onUploadSuccess'
+        multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import { getImages, collectImage, deleteImage } from '@/api/article.js'
-// const user = JSON.parse(window.localStorage.getItem('user'))
+const user = JSON.parse(window.localStorage.getItem('user'))
 export default {
-  name: 'imgList',
+  name: 'ImageIndex',
   components: {},
-  props: ['collect_and_delete', 'check_select'],
+  props: {},
   data () {
     return {
       radio1: '全部',
       images: [],
       collect: false,
-      //   dialogUploadVisible: false,
-      //   uploadHeaders: {
-      //     Authorization: `Bearer ${user.token}`
-      //   },
+      dialogUploadVisible: false,
+      uploadHeaders: {
+        Authorization: `Bearer ${user.token}`
+      },
       totalCount: null,
       pageSize: 20,
       page: 1,
       loading: true,
-      active_code: null,
-      image_active_code: null,
-      image_active_url: null
+      active_code: null
     }
   },
   computed: {},
@@ -70,15 +93,8 @@ export default {
   created () {
     this.onloadImage()
   },
-  mounted () {
-    this.monitoring_img()
-  },
+  mounted () {},
   methods: {
-    monitoring_img () {
-      this.$on('uploadImg', function () {
-        this.onloadImage()
-      })
-    },
     onloadImage (page = 1) {
       this.loading = true
       getImages({
@@ -90,7 +106,6 @@ export default {
         this.images = results
         this.totalCount = totalCount
         this.loading = false
-        this.$emit('getimages', this.images)
       })
     },
     onUploadSuccess () {
@@ -138,17 +153,15 @@ export default {
           message: '已取消删除'
         })
       })
-    },
-    onClick (index, url) {
-      this.image_active_code = index
-      this.image_active_url = url
-      this.$emit('showImage', this.image_active_url)
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+.alone {
+    margin-left: 20px;
+}
 .img-item {
     position: absolute;
     top: 0;
@@ -160,18 +173,6 @@ export default {
     .img-item-icon {
         color: rgba(255, 255, 255,0);
     }
-}
-.check-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    font-size: 60px;
-    padding: 25px 40px;
-    color: rgba(255, 255, 255, 0);
-}
-.check-active {
-    color: rgb(240, 157, 63);
 }
 .img_active_bg {
     position: absolute;
