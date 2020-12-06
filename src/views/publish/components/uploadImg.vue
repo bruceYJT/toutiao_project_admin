@@ -6,7 +6,7 @@
         ref="cover-image"
         :src="value"
       >
-      <i class="el-icon-plus avatar-uploader-icon"></i>
+      <i class="el-icon-plus avatar-uploader-icon" v-if="!$refs['preview-image']"></i>
     </div>
 
     <el-dialog
@@ -16,12 +16,6 @@
     >
       <el-tabs v-model="activeName" type="card">
         <el-tab-pane label="素材库" name="first">
-          <image-list
-            :is-show-add="false"
-            :is-show-action="false"
-            is-show-selected
-            ref="image-list"
-          />
         </el-tab-pane>
         <el-tab-pane label="上传图片" name="second">
           <input
@@ -47,7 +41,7 @@
 </template>
 
 <script>
-// import { uploadImage } from '@/api/image'
+import { uploadImage } from '@/api/article'
 // import ImageList from '@/views/image/components/image-list'
 export default {
   name: 'uploadImg',
@@ -90,26 +84,26 @@ export default {
         // 执行上传文件的操作
         const fd = new FormData()
         fd.append('image', file)
-        // uploadImage(fd).then(res => {
-        //   console.log(res)
-        //   // 关闭弹出层
-        //   this.dialogVisible = false
-        //   // 展示上传的图片
-        //   // this.$refs['cover-image'].src = res.data.data.url
-        //   this.$emit('input', res.data.data.url)
-        // })
+        uploadImage(fd).then(res => {
+          console.log(res)
+          // 关闭弹出层
+          this.dialogVisible = false
+          // 展示上传的图片
+          // this.$refs['cover-image'].src = res.data.data.url
+          this.$emit('input', res.data.data.url)
+        })
       } else if (this.activeName === 'first') {
         // 还有一种组件通信方式：父组件可以直接访问子组件中的数据
-        const imageList = this.$refs['image-list']
-        const selected = imageList.selected
-        if (selected === null) {
-          this.$message('请选择封面图片')
-          return
-        }
-        // 关闭对话框
-        this.dialogVisible = false
-        // 修改父组件绑定数据
-        this.$emit('input', imageList.images[selected].url)
+        // const imageList = this.$refs['image-list']
+        // const selected = imageList.selected
+        // if (selected === null) {
+        //   this.$message('请选择封面图片')
+        //   return
+        // }
+        // // 关闭对话框
+        // this.dialogVisible = false
+        // // 修改父组件绑定数据
+        // this.$emit('input', imageList.images[selected].url)
       }
     }
   }
@@ -118,14 +112,26 @@ export default {
 
 <style scoped lang="less">
 .cover-wrap {
+  position: relative;
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  z-index: 10;
+  height: 200px;
+  width: 200px;
   .cover-image {
-    height: 120px;
-    max-width: 100%;
+    height: 100%;
+    z-index: 20;
+  }
+  i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 40px;
+    color: #888;
   }
 }
 </style>
